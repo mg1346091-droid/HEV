@@ -1,0 +1,99 @@
+table index_1
+	lineageTag: b1d81dfc-63df-4282-b21a-abbf056756bf
+
+	measure 'Total Ingresos' = SUM('index_1'[money])
+		formatString: \$#,0.###############;-\$#,0.###############;\$#,0.###############
+		lineageTag: 70b94f20-ca7f-40d5-a0f2-93808e9f4b92
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-MX"}
+
+	measure 'Total Transacciones' = COUNTROWS('index_1')
+		formatString: 0
+		lineageTag: 040e9667-589e-4cbb-b3f3-b17b60619ab1
+
+	measure media = MEDIAN(index_1[money])
+		formatString: \$#,0.###############;-\$#,0.###############;\$#,0.###############
+		lineageTag: 7e92942a-9712-4c0f-95cc-3a2dc7591f16
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-MX"}
+
+	column date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 99c2305e-6e42-4f8e-81f2-b6dc2c6b8543
+		summarizeBy: none
+		sourceColumn: date
+
+		variation Variación
+			isDefault
+			relationship: 96a98d90-4044-46b9-893e-34fc5a831be1
+			defaultHierarchy: LocalDateTable_e447051e-663c-4a6e-a6ba-d83a71f46fd2.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column datetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: be656521-8f0a-40d0-a0dc-482aee9ba2fa
+		summarizeBy: none
+		sourceColumn: datetime
+
+		variation Variación
+			isDefault
+			relationship: 7e9de0aa-cc6e-4ccd-a8ce-5abbea9ac516
+			defaultHierarchy: LocalDateTable_2f120953-9d30-4fa6-9077-872496cc12fb.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column cash_type
+		dataType: string
+		lineageTag: f373bdba-f781-4ce3-b295-cec1939127e4
+		summarizeBy: none
+		sourceColumn: cash_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column card
+		dataType: string
+		lineageTag: 3ae87e00-d1fd-462c-bbf5-cad62963264b
+		summarizeBy: none
+		sourceColumn: card
+
+		annotation SummarizationSetBy = Automatic
+
+	column money
+		dataType: decimal
+		formatString: \$#,0.###############;-\$#,0.###############;\$#,0.###############
+		lineageTag: 6476c053-7e1b-439c-88eb-461b8c91a37f
+		summarizeBy: sum
+		sourceColumn: money
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-MX"}
+
+	column coffee_name
+		dataType: string
+		lineageTag: 4e013016-e22b-44bd-bd49-c42c89a6f561
+		summarizeBy: none
+		sourceColumn: coffee_name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition index_1 = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents("C:\Users\mg134\Downloads\index_1.csv"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Encabezados promovidos" = Table.PromoteHeaders(Origen, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"date", type date}, {"datetime", type datetime}, {"cash_type", type text}, {"card", type text}, {"money", type number}, {"coffee_name", type text}}),
+				    #"Tipo cambiado1" = Table.TransformColumnTypes(#"Tipo cambiado",{{"money", Currency.Type}})
+				in
+				    #"Tipo cambiado1"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+
